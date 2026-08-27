@@ -1,0 +1,395 @@
+{
+  "generated_at": "2026-08-25T22:27:02.904650+00:00",
+  "model": "unet.onnx",
+  "scenarios": [
+    {
+      "id": "norway-agriculture",
+      "name": "Norway agricultural edge",
+      "location": "Innlandet, Norway",
+      "bbox": [
+        10.68,
+        60.74,
+        10.72,
+        60.78
+      ],
+      "domain_shift": false,
+      "note": "Temporal Sentinel-2 comparison near the training geography.",
+      "before": {
+        "item_id": "S2B_MSIL2A_20200614T104629_R051_T32VNN_20200827T094730",
+        "datetime": "2020-06-14T10:46:29.024000+00:00",
+        "cloud_cover": 0.17918,
+        "platform": "Sentinel-2B"
+      },
+      "after": {
+        "item_id": "S2B_MSIL2A_20240812T104629_R051_T32VNN_20240812T134520",
+        "datetime": "2024-08-12T10:46:29.024000+00:00",
+        "cloud_cover": 1.676683,
+        "platform": "Sentinel-2B"
+      },
+      "assets": {
+        "before": "/scenarios/norway-agriculture/before.png",
+        "after": "/scenarios/norway-agriculture/after.png",
+        "before_mask": "/scenarios/norway-agriculture/before-mask.png",
+        "after_mask": "/scenarios/norway-agriculture/after-mask.png",
+        "before_uncertainty": "/scenarios/norway-agriculture/before-uncertainty.png",
+        "after_uncertainty": "/scenarios/norway-agriculture/after-uncertainty.png"
+      },
+      "area_unit": "hectares",
+      "class_areas": [
+        {
+          "id": 0,
+          "name": "Tree cover",
+          "short_name": "Trees",
+          "color": "#315C3A",
+          "before_hectares": 187.66,
+          "after_hectares": 197.14,
+          "delta_hectares": 9.48,
+          "before": 187.66,
+          "after": 197.14,
+          "delta": 9.48
+        },
+        {
+          "id": 1,
+          "name": "Low vegetation",
+          "short_name": "Low veg.",
+          "color": "#8AA05A",
+          "before_hectares": 353.69,
+          "after_hectares": 391.12,
+          "delta_hectares": 37.43,
+          "before": 353.69,
+          "after": 391.12,
+          "delta": 37.43
+        },
+        {
+          "id": 2,
+          "name": "Cropland",
+          "short_name": "Cropland",
+          "color": "#C4A85A",
+          "before_hectares": 92.02,
+          "after_hectares": 40.07,
+          "delta_hectares": -51.95,
+          "before": 92.02,
+          "after": 40.07,
+          "delta": -51.95
+        },
+        {
+          "id": 3,
+          "name": "Built-up",
+          "short_name": "Built-up",
+          "color": "#9A6A56",
+          "before_hectares": 9.85,
+          "after_hectares": 11.95,
+          "delta_hectares": 2.1,
+          "before": 9.85,
+          "after": 11.95,
+          "delta": 2.1
+        },
+        {
+          "id": 4,
+          "name": "Exposed terrain",
+          "short_name": "Terrain",
+          "color": "#B7A58B",
+          "before_hectares": 0.0,
+          "after_hectares": 0.0,
+          "delta_hectares": 0.0,
+          "before": 0.0,
+          "after": 0.0,
+          "delta": 0.0
+        },
+        {
+          "id": 5,
+          "name": "Permanent water",
+          "short_name": "Water",
+          "color": "#477B99",
+          "before_hectares": 12.14,
+          "after_hectares": 15.08,
+          "delta_hectares": 2.94,
+          "before": 12.14,
+          "after": 15.08,
+          "delta": 2.94
+        },
+        {
+          "id": 6,
+          "name": "Herbaceous wetland",
+          "short_name": "Wetland",
+          "color": "#6E8D78",
+          "before_hectares": 0.0,
+          "after_hectares": 0.0,
+          "delta_hectares": 0.0,
+          "before": 0.0,
+          "after": 0.0,
+          "delta": 0.0
+        }
+      ],
+      "transition_matrix": [
+        [
+          13844,
+          4515,
+          329,
+          53,
+          0,
+          25,
+          0
+        ],
+        [
+          5726,
+          27454,
+          1263,
+          630,
+          0,
+          296,
+          0
+        ],
+        [
+          38,
+          6732,
+          2415,
+          13,
+          0,
+          4,
+          0
+        ],
+        [
+          76,
+          410,
+          0,
+          499,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          1,
+          0,
+          0,
+          0,
+          1183,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "mean_uncertainty": {
+        "before": 0.5744622945785522,
+        "after": 0.5532180666923523
+      },
+      "source_type": "sentinel-2-stac",
+      "limitations": [
+        "Area values are model-derived estimates at an assumed 10 m pixel size.",
+        "The RGB model cannot establish the cause of a detected class transition."
+      ]
+    },
+    {
+      "id": "brazil-domain-shift",
+      "name": "Brazil domain-shift check",
+      "location": "S\u00e3o Jos\u00e9 dos Campos, Brazil",
+      "bbox": [
+        -46.02,
+        -23.27,
+        -45.98,
+        -23.23
+      ],
+      "domain_shift": true,
+      "note": "External geography used to expose, not hide, generalization risk.",
+      "before": {
+        "item_id": "S2A_MSIL2A_20200913T131251_R138_T23KLQ_20200918T161423",
+        "datetime": "2020-09-13T13:12:51.024000+00:00",
+        "cloud_cover": 0.114774,
+        "platform": "Sentinel-2A"
+      },
+      "after": {
+        "item_id": "S2A_MSIL2A_20240505T131241_R138_T23KLQ_20240505T191132",
+        "datetime": "2024-05-05T13:12:41.024000+00:00",
+        "cloud_cover": 0.001281,
+        "platform": "Sentinel-2A"
+      },
+      "assets": {
+        "before": "/scenarios/brazil-domain-shift/before.png",
+        "after": "/scenarios/brazil-domain-shift/after.png",
+        "before_mask": "/scenarios/brazil-domain-shift/before-mask.png",
+        "after_mask": "/scenarios/brazil-domain-shift/after-mask.png",
+        "before_uncertainty": "/scenarios/brazil-domain-shift/before-uncertainty.png",
+        "after_uncertainty": "/scenarios/brazil-domain-shift/after-uncertainty.png"
+      },
+      "area_unit": "hectares",
+      "class_areas": [
+        {
+          "id": 0,
+          "name": "Tree cover",
+          "short_name": "Trees",
+          "color": "#315C3A",
+          "before_hectares": 106.79,
+          "after_hectares": 176.12,
+          "delta_hectares": 69.33,
+          "before": 106.79,
+          "after": 176.12,
+          "delta": 69.33
+        },
+        {
+          "id": 1,
+          "name": "Low vegetation",
+          "short_name": "Low veg.",
+          "color": "#8AA05A",
+          "before_hectares": 154.34,
+          "after_hectares": 350.94,
+          "delta_hectares": 196.6,
+          "before": 154.34,
+          "after": 350.94,
+          "delta": 196.6
+        },
+        {
+          "id": 2,
+          "name": "Cropland",
+          "short_name": "Cropland",
+          "color": "#C4A85A",
+          "before_hectares": 394.23,
+          "after_hectares": 128.07,
+          "delta_hectares": -266.16,
+          "before": 394.23,
+          "after": 128.07,
+          "delta": -266.16
+        },
+        {
+          "id": 3,
+          "name": "Built-up",
+          "short_name": "Built-up",
+          "color": "#9A6A56",
+          "before_hectares": 0.0,
+          "after_hectares": 0.11,
+          "delta_hectares": 0.11,
+          "before": 0.0,
+          "after": 0.11,
+          "delta": 0.11
+        },
+        {
+          "id": 4,
+          "name": "Exposed terrain",
+          "short_name": "Terrain",
+          "color": "#B7A58B",
+          "before_hectares": 0.0,
+          "after_hectares": 0.0,
+          "delta_hectares": 0.0,
+          "before": 0.0,
+          "after": 0.0,
+          "delta": 0.0
+        },
+        {
+          "id": 5,
+          "name": "Permanent water",
+          "short_name": "Water",
+          "color": "#477B99",
+          "before_hectares": 0.0,
+          "after_hectares": 0.12,
+          "delta_hectares": 0.12,
+          "before": 0.0,
+          "after": 0.12,
+          "delta": 0.12
+        },
+        {
+          "id": 6,
+          "name": "Herbaceous wetland",
+          "short_name": "Wetland",
+          "color": "#6E8D78",
+          "before_hectares": 0.0,
+          "after_hectares": 0.0,
+          "delta_hectares": 0.0,
+          "before": 0.0,
+          "after": 0.0,
+          "delta": 0.0
+        }
+      ],
+      "transition_matrix": [
+        [
+          10420,
+          243,
+          3,
+          2,
+          0,
+          11,
+          0
+        ],
+        [
+          6394,
+          8711,
+          328,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          798,
+          26140,
+          12476,
+          9,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "mean_uncertainty": {
+        "before": 0.5868591070175171,
+        "after": 0.5587320923805237
+      },
+      "source_type": "sentinel-2-stac",
+      "limitations": [
+        "Area values are model-derived estimates at an assumed 10 m pixel size.",
+        "The RGB model cannot establish the cause of a detected class transition.",
+        "This scene is outside the Norway-focused training geography."
+      ]
+    }
+  ]
+}
