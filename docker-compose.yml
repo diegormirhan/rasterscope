@@ -1,0 +1,8 @@
+services:
+  rasterscope:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      RASTERSCOPE_LOG_LEVEL: INFO
+    restart: unless-stopped
