@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RasterScope · {{ scenario.name }}</title>
+    <style>
+      :root { color-scheme: light; font-family: Arial, sans-serif; color: #243029; }
+      body { margin: 0 auto; max-width: 1080px; padding: 40px; background: #f6f5ef; }
+      header, section { border-bottom: 1px solid #bdc4ba; padding: 0 0 24px; margin-bottom: 28px; }
+      h1 { margin: 0 0 8px; font-size: 30px; } h2 { font-size: 18px; }
+      .meta, small { color: #5d675f; } .images { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      img { display: block; width: 100%; } table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 8px 6px; border-bottom: 1px solid #d6dad3; text-align: right; }
+      th:first-child, td:first-child { text-align: left; } .warning { color: #825c14; }
+      @media print { body { background: white; padding: 0; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <small>RasterScope evidence report</small>
+      <h1>{{ scenario.name }}</h1>
+      <p class="meta">{{ scenario.location }} · generated {{ generated_at }}</p>
+      {% if scenario.domain_shift %}<p class="warning">Domain-shift scenario: this geography is outside the Norway-focused training distribution.</p>{% endif %}
+    </header>
+    <section class="images">
+      <figure><img src="{{ before_image }}" alt="Before Sentinel-2 scene"><figcaption>{{ scenario.before.datetime }} · {{ scenario.before.cloud_cover }}% scene cloud cover</figcaption></figure>
+      <figure><img src="{{ after_image }}" alt="After Sentinel-2 scene"><figcaption>{{ scenario.after.datetime }} · {{ scenario.after.cloud_cover }}% scene cloud cover</figcaption></figure>
+    </section>
+    <section>
+      <h2>Model-derived area estimates</h2>
+      <table><thead><tr><th>Class</th><th>Before ({{ scenario.area_unit }})</th><th>After ({{ scenario.area_unit }})</th><th>Delta ({{ scenario.area_unit }})</th></tr></thead>
+      <tbody>{% for item in scenario.class_areas %}<tr><td>{{ item.name }}</td><td>{{ "%.2f"|format(item.before) }}</td><td>{{ "%.2f"|format(item.after) }}</td><td>{{ "%+.2f"|format(item.delta) }}</td></tr>{% endfor %}</tbody></table>
+    </section>
+    <section><h2>Provenance</h2><p>Before: {{ scenario.before.item_id }}. After: {{ scenario.after.item_id }}. Source: Copernicus Sentinel-2 L2A via Microsoft Planetary Computer.</p></section>
+    <section><h2>Limitations</h2><ul>{% for limitation in scenario.limitations %}<li>{{ limitation }}</li>{% endfor %}</ul></section>
+  </body>
+</html>
