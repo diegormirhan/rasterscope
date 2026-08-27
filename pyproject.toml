@@ -1,0 +1,73 @@
+[project]
+name = "rasterscope"
+version = "0.1.0"
+description = "Local satellite land-cover segmentation and change-analysis workbench"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Diego Mirhan", email = "mirhan.diego@gmail.com" }]
+dependencies = [
+  "fastapi[standard]>=0.116,<1",
+  "httpx>=0.28,<1",
+  "jinja2>=3.1,<4",
+  "numpy>=2.1,<3",
+  "onnxruntime>=1.22,<2",
+  "pillow>=11,<13",
+  "pydantic-settings>=2.10,<3",
+  "pyyaml>=6,<7",
+  "structlog>=25,<26",
+]
+
+[project.optional-dependencies]
+ml = [
+  "huggingface-hub>=0.34,<2",
+  "onnx>=1.18,<2",
+  "onnxscript>=0.3,<1",
+  "planetary-computer>=1,<2",
+  "pyarrow>=20,<23",
+  "pystac-client>=0.9,<1",
+  "rasterio>=1.4,<2",
+  "scikit-learn>=1.7,<2",
+  "torch>=2.7,<3",
+  "torchvision>=0.22,<1",
+  "transformers>=4.53,<6",
+]
+dev = [
+  "coverage[toml]>=7.9,<8",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<8",
+  "ruff>=0.12,<1",
+  "ty>=0.0.1a20",
+]
+
+[project.scripts]
+rasterscope = "rasterscope.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rasterscope"]
+
+[tool.fastapi]
+entrypoint = "rasterscope.api.app:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["data/raw"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.coverage.run]
+source = ["rasterscope"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
