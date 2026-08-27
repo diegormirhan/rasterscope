@@ -1,0 +1,109 @@
+project:
+  name: RasterScope
+  seed: 42
+
+paths:
+  dataset_parquet: data/raw/data/train-00000-of-00001.parquet
+  split_manifest: data/processed/splits.json
+  model_dir: artifacts/models
+  run_dir: artifacts/runs
+  scenario_dir: artifacts/scenarios
+  report_dir: reports/generated
+  frontend_dist: frontend/dist
+
+dataset:
+  repository: nikolkoo/SatelliteSegmentation
+  revision: 6109f61547ea2a3cdb5130983837790628a23821
+  sample_count: 790
+  tile_size: 256
+  meters_per_pixel: 10
+  split:
+    train: 0.70
+    validation: 0.15
+    test: 0.15
+  ignore_index: 255
+  raw_to_training:
+    0: 255
+    10: 0
+    20: 1
+    30: 1
+    40: 2
+    50: 3
+    60: 4
+    70: 4
+    80: 5
+    90: 6
+    100: 1
+
+classes:
+  - id: 0
+    name: Tree cover
+    short_name: Trees
+    color: "#315C3A"
+  - id: 1
+    name: Low vegetation
+    short_name: Low veg.
+    color: "#8AA05A"
+  - id: 2
+    name: Cropland
+    short_name: Cropland
+    color: "#C4A85A"
+  - id: 3
+    name: Built-up
+    short_name: Built-up
+    color: "#9A6A56"
+  - id: 4
+    name: Exposed terrain
+    short_name: Terrain
+    color: "#B7A58B"
+  - id: 5
+    name: Permanent water
+    short_name: Water
+    color: "#477B99"
+  - id: 6
+    name: Herbaceous wetland
+    short_name: Wetland
+    color: "#6E8D78"
+
+training:
+  model: unet
+  batch_size: 8
+  epochs: 4
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  num_workers: 0
+  base_channels: 16
+  max_class_weight: 8.0
+  dice_weight: 0.4
+  device: auto
+
+inference:
+  model_path: artifacts/models/unet.onnx
+  input_size: 256
+  overlay_opacity: 0.52
+  uncertainty_threshold: 0.55
+
+scenarios:
+  - id: norway-agriculture
+    name: Norway agricultural edge
+    location: Innlandet, Norway
+    bbox: [10.68, 60.74, 10.72, 60.78]
+    before: 2020-06-01/2020-08-31
+    after: 2024-06-01/2024-08-31
+    max_cloud_cover: 8
+    domain_shift: false
+    note: Temporal Sentinel-2 comparison near the training geography.
+  - id: brazil-domain-shift
+    name: Brazil domain-shift check
+    location: São José dos Campos, Brazil
+    bbox: [-46.02, -23.27, -45.98, -23.23]
+    before: 2020-05-01/2020-09-30
+    after: 2024-05-01/2024-09-30
+    max_cloud_cover: 8
+    domain_shift: true
+    note: External geography used to expose, not hide, generalization risk.
+
+api:
+  host: 127.0.0.1
+  port: 8000
+  max_upload_megabytes: 12
