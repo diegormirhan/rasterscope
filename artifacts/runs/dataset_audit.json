@@ -1,0 +1,12 @@
+{
+  "dataset": "nikolkoo/SatelliteSegmentation",
+  "revision": "6109f61547ea2a3cdb5130983837790628a23821",
+  "sample_count": 790,
+  "split_counts": {
+    "train": 553,
+    "validation": 118,
+    "test": 119
+  },
+  "tile_size": 256,
+  "meters_per_pixel": 10.0
+}
