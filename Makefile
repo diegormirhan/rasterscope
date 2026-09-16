@@ -1,4 +1,4 @@
-.PHONY: install test lint train evaluate export frontend run dev
+.PHONY: install test lint train evaluate export frontend run dev media
 
 install:
 	uv sync --all-extras
@@ -30,3 +30,7 @@ run: frontend
 
 dev:
 	uv run fastapi dev --host 127.0.0.1 --port 8000
+
+# Regenerates docs/images and docs/media against a running instance (make run).
+media:
+	uv run --extra media python scripts/capture_media.py
