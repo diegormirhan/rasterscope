@@ -1,6 +1,7 @@
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, Minus, Ruler } from "lucide-react";
 
 import type { ClassArea, Scenario } from "../types";
+import { Matrix } from "./Matrix";
 
 interface AnalysisRailProps {
   scenario: Scenario;
@@ -37,7 +38,16 @@ export function AnalysisRail({ scenario }: AnalysisRailProps) {
           <h2>Transition matrix</h2>
           <Ruler aria-hidden="true" />
         </div>
-        <TransitionMatrix scenario={scenario} />
+        <Matrix
+          values={scenario.transition_matrix}
+          labels={scenario.class_areas.map((item) => item.short_name)}
+          titles={scenario.class_areas.map((item) => item.name)}
+          caption="Predicted land-cover transition matrix"
+          rowAxis="From"
+          columnAxis="To"
+          describe={(from, to, value) => `${from} to ${to}: ${value.toLocaleString("en")} pixels`}
+        />
+        <p className="analysis-note">Pixels that kept their class sit on the diagonal; everything off it is a predicted change.</p>
       </section>
 
       <section className="analysis-section analysis-section--limits">
@@ -73,38 +83,6 @@ function UncertaintyBar({ label, value }: { label: string; value: number }) {
   );
 }
 
-function TransitionMatrix({ scenario }: { scenario: Scenario }) {
-  const maximum = Math.max(...scenario.transition_matrix.flat(), 1);
-  return (
-    <div className="matrix" role="table" aria-label="Predicted land-cover transition matrix">
-      <div className="matrix__corner" aria-hidden="true">From ↓ / To →</div>
-      {scenario.class_areas.map((item) => (
-        <div key={`head-${item.id}`} className="matrix__head" role="columnheader" title={item.name}>
-          <span className={`class-swatch class-swatch--${item.id}`} />
-        </div>
-      ))}
-      {scenario.transition_matrix.map((row, rowIndex) => (
-        <div className="matrix__row" role="row" key={scenario.class_areas[rowIndex].id}>
-          <div className="matrix__head matrix__head--row" role="rowheader" title={scenario.class_areas[rowIndex].name}>
-            <span className={`class-swatch class-swatch--${scenario.class_areas[rowIndex].id}`} />
-          </div>
-          {row.map((value, columnIndex) => (
-            <div
-              className="matrix__cell"
-              role="cell"
-              key={`${rowIndex}-${columnIndex}`}
-              style={{ "--intensity": Math.sqrt(value / maximum) } as React.CSSProperties}
-              title={`${scenario.class_areas[rowIndex].name} to ${scenario.class_areas[columnIndex].name}: ${value.toLocaleString("en")}`}
-            >
-              {value > maximum * 0.08 ? compactNumber(value) : ""}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function formatValue(value: number, unit: Scenario["area_unit"]): string {
   return unit === "hectares" ? value.toFixed(1) : Math.round(value).toLocaleString("en");
 }
@@ -113,8 +91,3 @@ function formatSigned(value: number, unit: Scenario["area_unit"]): string {
   const formatted = formatValue(Math.abs(value), unit);
   return `${value > 0 ? "+" : value < 0 ? "−" : ""}${formatted}`;
 }
-
-function compactNumber(value: number): string {
-  return new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(value);
-}
-
