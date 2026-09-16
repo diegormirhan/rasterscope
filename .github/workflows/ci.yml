@@ -46,3 +46,39 @@ jobs:
         run: |
           npm test -- --run
           npm run build
+
+  # The quality job builds the frontend from the repository root, where every
+  # relative path resolves. The image builds it from a copied subtree, where one
+  # of them did not -- and only a real build catches that.
+  image:
+    name: Runtime image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the runtime image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: rasterscope:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Not just "does it build": the deployment assigns the port, so the smoke
+      # test does too, and it asks for the served page as well as the health route.
+      - name: Serve it on an assigned port
+        run: |
+          docker run --detach --name rasterscope --env PORT=9000 --publish 9000:9000 rasterscope:ci
+          for _ in $(seq 40); do
+            if curl --fail --silent http://127.0.0.1:9000/api/health; then
+              curl --fail --silent --output /dev/null http://127.0.0.1:9000/
+              echo "health and index both answered"
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs rasterscope
+          exit 1
