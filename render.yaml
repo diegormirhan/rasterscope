@@ -1,0 +1,19 @@
+# Render Blueprint. Create the service from this file with New → Blueprint on
+# https://dashboard.render.com, pointing at this repository.
+#
+# The Docker image is the same one `docker compose up` builds locally, so what
+# runs here is what runs on the machine. Render injects PORT and the Dockerfile
+# binds to it.
+services:
+  - type: web
+    name: rasterscope
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: RASTERSCOPE_LOG_LEVEL
+        value: INFO
