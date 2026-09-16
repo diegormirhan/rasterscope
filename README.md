@@ -423,6 +423,10 @@ uv run --extra media python scripts/capture_media.py
 
 A screenshot nobody can regenerate starts lying quietly after the next UI change.
 
+CI also builds the runtime image and serves it on an assigned port. Building the frontend from the
+repository root and building it from a copied subtree are not the same test, and only the second one
+is what deploys.
+
 ---
 
 ## Known limitations
