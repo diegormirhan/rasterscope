@@ -28,7 +28,10 @@ test-results/
 .vscode/
 .DS_Store
 Thumbs.db
-LINKEDIN_POST_PT.md
+docs/launch/
 .hallmark/
 .impeccable/
 docs/video-script-pt.md
+.claude/
+
+docs/media/*.webm
