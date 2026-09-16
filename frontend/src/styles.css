@@ -115,12 +115,34 @@ h3 {
   min-inline-size: 0;
   overflow-wrap: anywhere;
   font-family: var(--font-display);
+  font-optical-sizing: auto;
   font-style: normal;
-  letter-spacing: -0.025em;
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+}
+
+/* Tracking is a function of size: one value across the scale is wrong somewhere. */
+h1 {
+  letter-spacing: var(--track-title);
+}
+
+h2,
+h3 {
+  letter-spacing: var(--track-heading);
 }
 
 p {
-  line-height: 1.55;
+  line-height: var(--leading-body);
+  text-wrap: pretty;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .app-shell {
@@ -138,8 +160,8 @@ p {
   min-block-size: 4rem;
   padding: var(--space-xs) var(--space-sm);
   border-block-end: var(--rule-thin) solid var(--color-rule);
-  background: var(--color-ink);
-  color: var(--color-paper);
+  background: var(--color-chrome);
+  color: var(--color-chrome-ink);
 }
 
 .brand,
@@ -177,9 +199,10 @@ p {
 
 .nav-item {
   padding-inline: var(--space-sm);
-  color: var(--color-paper-raised);
+  color: var(--color-chrome-ink);
   font-size: var(--text-sm);
   font-weight: 600;
+  letter-spacing: var(--track-micro);
 }
 
 .nav-item[data-active="true"] {
@@ -196,31 +219,51 @@ p {
 }
 
 .toolbar {
+  position: sticky;
+  z-index: 100;
+  inset-block-start: 4rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: end;
   gap: var(--space-sm);
   padding: var(--space-sm);
   border-block-end: var(--rule-thin) solid var(--color-rule);
-  background: var(--color-paper);
+  /* Translucent so imagery keeps travelling under the controls rather than
+   * being cut off by an opaque strip. */
+  background: var(--material-chrome);
+  backdrop-filter: var(--material-blur);
+}
+
+.toolbar__group {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-sm);
+  min-inline-size: 0;
 }
 
 .scenario-control,
-.opacity-control {
+.opacity-control,
+.layer-control {
   display: grid;
   gap: var(--space-2xs);
 }
 
 .scenario-control label,
 .opacity-control > span,
+.layer-control > span,
 .file-field__label {
   color: var(--color-muted);
   font-size: var(--text-xs);
   font-weight: 600;
+  letter-spacing: var(--track-micro);
 }
 
 .scenario-control select {
   min-block-size: 2.75rem;
-  max-inline-size: 15rem;
+  inline-size: 100%;
+  max-inline-size: 18rem;
   padding-inline: var(--space-sm) var(--space-xl);
   border: var(--rule-thin) solid var(--color-rule-strong);
   border-radius: var(--radius-xs);
@@ -228,20 +271,14 @@ p {
   color: var(--color-ink);
 }
 
-.layer-control {
-  display: none;
+.segmented {
+  display: flex;
   min-block-size: 2.75rem;
   align-items: center;
   padding: var(--space-2xs);
   border: var(--rule-thin) solid var(--color-rule);
   border-radius: var(--radius-xs);
   background: var(--color-paper-raised);
-}
-
-.layer-control > svg {
-  inline-size: 1rem;
-  margin-inline: var(--space-xs);
-  color: var(--color-muted);
 }
 
 .segmented-button {
@@ -251,7 +288,7 @@ p {
   background: transparent;
   color: var(--color-ink-soft);
   font-size: var(--text-sm);
-  transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+  transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), transform var(--dur-press) var(--ease-out);
 }
 
 .segmented-button[data-active="true"] {
@@ -261,9 +298,14 @@ p {
 }
 
 .opacity-control {
-  display: none;
-  grid-template-columns: minmax(5rem, 8rem) 3rem;
+  grid-template-columns: minmax(4.5rem, 8rem) 3rem;
   align-items: center;
+  transition: opacity var(--dur-short) var(--ease-out);
+}
+
+/* The control stays in place when it cannot act, so the row never reflows. */
+.opacity-control[data-available="false"] {
+  opacity: 0.45;
 }
 
 .opacity-control > span {
@@ -301,7 +343,7 @@ input[type="range"] {
   font-size: var(--text-sm);
   font-weight: 700;
   text-decoration: none;
-  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-press) var(--ease-out);
 }
 
 .button svg {
@@ -320,13 +362,14 @@ input[type="range"] {
   color: var(--color-ink);
 }
 
+/* Feedback lands on pointer-down, not on release. */
 .button:active,
 .brand:active,
 .nav-item:active,
 .segmented-button:active,
 .icon-button:active,
 .file-picker:active {
-  transform: translateY(1px);
+  transform: scale(0.975);
 }
 
 .button[aria-busy="true"] {
@@ -361,7 +404,7 @@ input[type="range"] {
 }
 
 .comparison__hint {
-  display: none;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
 }
@@ -383,7 +426,15 @@ input[type="range"] {
   font-size: var(--text-sm);
 }
 
+.comparison-stage {
+  display: grid;
+  min-inline-size: 0;
+  place-items: center;
+}
+
 .comparison-frame {
+  --divider: 50%;
+
   position: relative;
   overflow: clip;
   inline-size: 100%;
@@ -392,6 +443,7 @@ input[type="range"] {
   background: var(--color-paper-deep);
   cursor: crosshair;
   isolation: isolate;
+  touch-action: none;
 }
 
 .image-layer,
@@ -415,36 +467,74 @@ input[type="range"] {
 
 .comparison-frame__after {
   z-index: 10;
+  clip-path: inset(0 calc(100% - var(--divider)) 0 0);
 }
 
+/* The rule is 2 px of ink; the grab area around it is 18 px of nothing. */
 .comparison-divider {
   position: absolute;
   z-index: 20;
   inset-block: 0;
-  inline-size: 2px;
-  background: var(--color-paper);
-  box-shadow: 0 0 0 1px var(--color-ink-soft);
+  inset-inline-start: var(--divider);
+  inline-size: 18px;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
   transform: translateX(-50%);
+}
+
+.comparison-divider::after {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(50% - 1px);
+  inline-size: 2px;
+  background: oklch(99% 0 0);
+  box-shadow: 0 0 0 1px oklch(0% 0 0 / 0.35);
+  content: "";
 }
 
 .comparison-handle {
   position: absolute;
   z-index: 30;
   inset-block-start: 50%;
+  inset-inline-start: var(--divider);
   display: grid;
   inline-size: 2.75rem;
   block-size: 2.75rem;
   place-items: center;
-  border: var(--rule-thin) solid var(--color-ink);
+  border: var(--rule-thin) solid var(--material-edge);
   border-radius: 50%;
-  background: var(--color-paper);
+  background: var(--material-float);
+  backdrop-filter: var(--material-blur);
+  box-shadow: 0 2px 10px var(--color-shadow-deep);
   color: var(--color-ink);
   cursor: col-resize;
+  touch-action: none;
   transform: translate(-50%, -50%);
+  transition: transform var(--dur-press) var(--ease-out);
 }
 
-.comparison-handle svg {
-  inline-size: 1rem;
+/* Hit slop: the handle accepts a press ten pixels before it looks pressed. */
+.comparison-handle::before {
+  position: absolute;
+  inset: -10px;
+  content: "";
+}
+
+.comparison-handle__grip {
+  inline-size: 0.875rem;
+  block-size: 1.05rem;
+  background:
+    radial-gradient(circle at center, currentcolor 1.1px, transparent 1.2px) 0 0 / 50% 33.33%;
+  opacity: 0.75;
+}
+
+.comparison-frame[data-dragging="true"] .comparison-handle {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.comparison-frame[data-dragging="true"] {
+  cursor: col-resize;
 }
 
 .image-date {
@@ -452,13 +542,17 @@ input[type="range"] {
   z-index: 15;
   inset-block-start: var(--space-sm);
   padding: var(--space-xs) var(--space-sm);
-  border: var(--rule-thin) solid var(--color-rule);
+  border: var(--rule-thin) solid var(--material-edge);
   border-radius: var(--radius-xs);
-  background: var(--color-paper);
+  background: var(--material-float);
+  backdrop-filter: var(--material-blur);
   color: var(--color-ink);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: var(--track-mono);
+  pointer-events: none;
 }
 
 .image-date--after {
@@ -469,26 +563,93 @@ input[type="range"] {
   inset-inline-end: var(--space-sm);
 }
 
+/* Anchored on the inspected pixel, clamped by script so an edge pixel does not
+ * push the panel outside the frame that clips it. */
 .pixel-readout {
   position: absolute;
   z-index: 40;
   display: grid;
-  min-inline-size: 9.5rem;
-  gap: var(--space-2xs);
+  min-inline-size: 10.5rem;
+  gap: var(--space-3xs);
   padding: var(--space-sm);
-  border: var(--rule-thin) solid var(--color-ink);
-  border-radius: var(--radius-xs);
-  background: var(--color-paper);
+  border: var(--rule-thin) solid var(--material-edge);
+  border-radius: var(--radius-sm);
+  background: var(--material-float);
+  backdrop-filter: var(--material-blur);
+  box-shadow: 0 6px 24px var(--color-shadow-deep);
   color: var(--color-ink);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  inset-block-start: var(--readout-y, 50%);
+  inset-inline-start: var(--readout-x, 50%);
   pointer-events: none;
-  transform: translate(-50%, calc(-100% - var(--space-sm)));
+  animation: readout-materialize var(--dur-short) var(--ease-out);
+}
+
+.pixel-readout[data-placement="above"] {
+  transform: translate(-50%, calc(-100% - 0.9rem));
+  transform-origin: bottom center;
+}
+
+.pixel-readout[data-placement="below"] {
+  transform: translate(-50%, 0.9rem);
+  transform-origin: top center;
+}
+
+.pixel-readout__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-block-end: var(--space-2xs);
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+}
+
+.pixel-readout__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  color: var(--color-ink-soft);
+}
+
+.pixel-readout__row b {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pixel-readout__meta {
+  margin-block-start: var(--space-2xs);
+  color: var(--color-muted);
+  font-size: 0.6875rem;
 }
 
 .pixel-readout strong {
   font-family: var(--font-body);
   font-size: var(--text-sm);
+  letter-spacing: var(--track-body);
+}
+
+/* The panel has to read as a material arriving, not a rectangle fading in. */
+@keyframes readout-materialize {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.pixel-marker {
+  position: absolute;
+  z-index: 35;
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  border: 2px solid var(--color-paper);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--color-shadow-deep);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .source-line {
@@ -655,7 +816,7 @@ input[type="range"] {
 
 .matrix {
   display: grid;
-  grid-template-columns: 3.25rem repeat(7, minmax(0, 1fr));
+  grid-template-columns: 4.75rem repeat(var(--matrix-size), minmax(0, 1fr));
   gap: 2px;
   font-family: var(--font-mono);
   font-size: 0.625rem;
@@ -666,34 +827,75 @@ input[type="range"] {
   display: contents;
 }
 
-.matrix__corner,
-.matrix__head,
 .matrix__cell {
   display: grid;
-  min-block-size: 1.8rem;
+  min-block-size: 1.9rem;
   place-items: center;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--color-accent) calc(var(--intensity) * 82%), var(--color-paper));
+  color: var(--color-ink);
+}
+
+/* Pixels that did not change sit on the diagonal; the outline says so without
+ * spending a second colour on it. */
+.matrix__cell[data-diagonal="true"] {
+  outline: var(--rule-thin) solid var(--color-rule-strong);
+  outline-offset: -1px;
 }
 
 .matrix__corner {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: end;
+  gap: 1px;
+  padding: 2px var(--space-2xs);
   color: var(--color-muted);
-  font-size: 0.55rem;
-  line-height: 1.1;
-  text-align: center;
+  font-size: 0.5625rem;
+  line-height: 1.15;
+}
+
+.matrix__axis--row::after {
+  content: " ↓";
+}
+
+.matrix__axis--column::after {
+  content: " →";
 }
 
 .matrix__head {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
   background: var(--color-paper);
+  color: var(--color-ink-soft);
+}
+
+.matrix__head--column {
+  flex-direction: column;
+  justify-content: end;
+  gap: var(--space-2xs);
+  min-block-size: 4.5rem;
+  padding-block-end: var(--space-2xs);
+}
+
+.matrix__head--column .matrix__head-label {
+  writing-mode: vertical-rl;
+  rotate: 180deg;
 }
 
 .matrix__head--row {
+  gap: var(--space-2xs);
   justify-content: start;
-  padding-inline-start: var(--space-xs);
+  padding-inline: var(--space-2xs);
 }
 
-.matrix__cell {
+.matrix__head-label {
   overflow: hidden;
-  background: color-mix(in oklch, var(--color-accent) calc(var(--intensity) * 85%), var(--color-paper));
-  color: var(--color-ink);
+  font-size: 0.625rem;
+  letter-spacing: var(--track-micro);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .analysis-section--limits ul {
@@ -721,19 +923,29 @@ input[type="range"] {
   border-block-end: var(--rule-thin) solid var(--color-rule-strong);
 }
 
+/* The About header is one column of prose, not a two-column metric header. */
+.about-page > header {
+  justify-items: start;
+  gap: var(--space-md);
+}
+
 .model-lab__header h1,
 .about-page > header h1 {
   max-inline-size: 18ch;
   font-size: var(--text-display);
-  line-height: 1.05;
+  letter-spacing: var(--track-display);
+  line-height: var(--leading-display);
 }
 
 .model-lab__header p,
 .about-page > header p {
   max-inline-size: 65ch;
-  margin-block-start: var(--space-sm);
   color: var(--color-ink-soft);
   font-size: var(--text-lg);
+}
+
+.model-lab__header p {
+  margin-block-start: var(--space-sm);
 }
 
 .metric-callout {
@@ -818,6 +1030,13 @@ input[type="range"] {
   padding-block: var(--space-xl);
 }
 
+.model-detail__side {
+  display: grid;
+  align-content: start;
+  gap: var(--space-xl);
+  min-inline-size: 0;
+}
+
 .metric-table {
   margin-block-start: var(--space-md);
   border-block-start: var(--rule-thin) solid var(--color-rule-strong);
@@ -826,7 +1045,7 @@ input[type="range"] {
 .metric-table__header,
 .metric-table__row {
   display: grid;
-  grid-template-columns: minmax(8rem, 1.3fr) repeat(2, minmax(3.5rem, 0.45fr)) minmax(6rem, 0.8fr);
+  grid-template-columns: minmax(8rem, 1.3fr) repeat(2, minmax(4rem, 0.5fr)) minmax(6rem, 0.8fr);
   gap: var(--space-sm);
   align-items: center;
   min-block-size: 2.75rem;
@@ -848,10 +1067,31 @@ input[type="range"] {
   gap: var(--space-xs);
 }
 
-.metric-table__row > span:nth-child(2),
-.metric-table__row > span:nth-child(3) {
+/* The bar is the measurement drawn at its own scale, not decoration around it. */
+.metric-table__value {
+  position: relative;
+  padding-block-end: 0.55rem;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+.metric-table__value::before,
+.metric-table__value::after {
+  position: absolute;
+  inset-block-end: 0.15rem;
+  inset-inline-start: 0;
+  block-size: 2px;
+  content: "";
+}
+
+.metric-table__value::before {
+  inline-size: 100%;
+  background: var(--color-rule);
+}
+
+.metric-table__value::after {
+  inline-size: calc(var(--fill) * 100%);
+  background: var(--color-accent);
 }
 
 .status {
@@ -974,6 +1214,24 @@ input[type="range"] {
 
 .upload-dialog::backdrop {
   background: var(--color-backdrop);
+}
+
+.upload-dialog[open] {
+  animation: dialog-materialize var(--dur-short) var(--ease-out);
+}
+
+@keyframes dialog-materialize {
+  from {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-dialog[open] {
+    animation: readout-fade var(--dur-micro) var(--ease-out);
+  }
 }
 
 .upload-dialog form {
@@ -1134,7 +1392,7 @@ input[type="range"] {
 @media (hover: hover) and (pointer: fine) {
   .brand:hover,
   .nav-item:hover {
-    background: var(--color-ink-soft);
+    background: var(--color-chrome-raised);
   }
 
   .nav-item[data-active="true"]:hover {
@@ -1165,16 +1423,8 @@ input[type="range"] {
     padding-inline: var(--space-md);
   }
 
-  .layer-control {
-    display: flex;
-  }
-
   .comparison {
     padding: var(--space-lg);
-  }
-
-  .comparison__hint {
-    display: inline-flex;
   }
 
   .model-lab,
@@ -1182,8 +1432,7 @@ input[type="range"] {
     padding-inline: var(--space-xl);
   }
 
-  .model-lab__header,
-  .about-page > header {
+  .model-lab__header {
     grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.6fr);
   }
 
@@ -1197,7 +1446,7 @@ input[type="range"] {
   }
 
   .about-grid {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1264,8 +1513,8 @@ input[type="range"] {
     min-block-size: 100dvh;
   }
 
-  .opacity-control {
-    display: grid;
+  .toolbar {
+    inset-block-start: 0;
   }
 
   .workbench-skeleton {
@@ -1274,6 +1523,11 @@ input[type="range"] {
 
   .model-detail {
     grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+  }
+
+  .about-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl) var(--space-lg);
   }
 }
 
@@ -1290,9 +1544,14 @@ input[type="range"] {
     min-block-size: 0;
   }
 
+  .comparison-stage {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    container-type: size;
+  }
+
   .comparison-frame {
-    inline-size: min(100%, calc(100dvh - 12rem));
-    margin: auto;
+    inline-size: min(100cqi, 100cqb);
   }
 
   .analysis-rail {
@@ -1329,27 +1588,52 @@ input[type="range"] {
     padding: 0;
   }
 
-  .toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
+  .toolbar__group {
+    display: contents;
+  }
+
+  .scenario-control {
+    flex: 1 1 100%;
+    order: 1;
   }
 
   .scenario-control select {
     inline-size: 100%;
+    max-inline-size: none;
   }
 
-  .toolbar__actions .button--secondary {
+  .layer-control {
+    flex: 1 1 10rem;
+    order: 2;
+  }
+
+  .opacity-control {
+    flex: 1 1 100%;
+    order: 4;
+  }
+
+  .segmented {
+    justify-content: space-between;
+  }
+
+  .segmented-button {
+    padding-inline: var(--space-xs);
+    font-size: var(--text-xs);
+  }
+
+  /* Icon-only, but still present: exporting evidence is not a desktop feature. */
+  .toolbar__actions {
+    flex: 0 0 auto;
+    order: 3;
+    margin-inline-start: 0;
+  }
+
+  .toolbar__actions .button {
     inline-size: 2.75rem;
     padding: 0;
   }
 
-  .toolbar__actions .button--secondary span,
-  .toolbar__actions .button--primary span {
-    display: none;
-  }
-
-  .toolbar__actions .button--primary {
+  .toolbar__actions .button span {
     position: absolute;
     inline-size: 1px;
     block-size: 1px;
@@ -1358,7 +1642,13 @@ input[type="range"] {
   }
 
   .comparison__heading {
+    flex-direction: column;
     align-items: start;
+    gap: var(--space-xs);
+  }
+
+  .comparison__heading h1 {
+    font-size: var(--text-xl);
   }
 
   .domain-notice {
@@ -1370,13 +1660,14 @@ input[type="range"] {
     font-size: 0.625rem;
   }
 
-  .analysis-section {
-    overflow-x: auto;
-  }
-
   .area-header,
   .area-row {
-    min-inline-size: 32rem;
+    grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(2.6rem, 0.6fr));
+    gap: var(--space-2xs);
+  }
+
+  .area-row__name {
+    font-size: var(--text-xs);
   }
 
   .metric-table {
@@ -1385,7 +1676,7 @@ input[type="range"] {
 
   .metric-table__header,
   .metric-table__row {
-    min-inline-size: 38rem;
+    min-inline-size: 30rem;
   }
 
   .dialog-actions {
@@ -1425,5 +1716,15 @@ input[type="range"] {
   .icon-button,
   .file-picker {
     transform: none !important;
+  }
+
+  .pixel-readout {
+    animation: readout-fade var(--dur-micro) var(--ease-out);
+  }
+
+  @keyframes readout-fade {
+    from {
+      opacity: 0;
+    }
   }
 }
