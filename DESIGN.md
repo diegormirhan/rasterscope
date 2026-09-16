@@ -26,7 +26,13 @@ The product is an operational workbench, not a marketing dashboard. Dense inform
 
 ## Color
 
-All implementation colors use OKLCH tokens.
+All implementation colors use OKLCH tokens, and every surface token is defined twice: once for the
+light scheme and once under `prefers-color-scheme: dark`. No rule in `styles.css` is scheme-specific.
+
+Two things deliberately do not invert. The navigation rail owns `--color-chrome`, a separate pair, so
+it stays dark in both schemes and keeps reading as chrome rather than as content. The divider between
+the two images is a fixed near-white rule with a dark outer stroke, because it separates two
+photographs and has to stay visible over both.
 
 - Paper: `oklch(97% 0.009 105)` — warm mineral near-white.
 - Paper raised: `oklch(94% 0.012 105)`.
@@ -38,10 +44,22 @@ All implementation colors use OKLCH tokens.
 - Warning: `oklch(64% 0.130 75)` — amber, reserved for uncertainty.
 - Error: `oklch(52% 0.150 28)`.
 
+### Materials
+
+Surfaces that float over imagery — the toolbar, the date badges, the divider handle and the pixel
+readout — are translucent with `backdrop-filter`, so the working material keeps travelling under the
+chrome instead of being cut off by an opaque strip. Everything else stays flat.
+
+`prefers-reduced-transparency` and `prefers-contrast: more` resolve those materials to solid surfaces
+at the token layer, so no component needs to know either setting exists.
+
 Land-cover classes use a separate categorical palette. Every class is paired with a text label or pattern; color is never the only cue.
 
 ## Typography
 
+- Tracking is size-specific, never one value across the scale: `-0.03em` at display size, `-0.022em`
+  for page titles, `-0.014em` for section headings, `0` for body, `+0.02em` for micro labels. A fixed
+  `letter-spacing` is wrong somewhere on the scale.
 - Display and UI headings: Manrope variable, upright, 700.
 - Body and controls: Source Sans 3 variable, 400/600.
 - Measurements and tables: IBM Plex Mono, 400/500, tabular numerals.
@@ -60,8 +78,17 @@ Land-cover classes use a separate categorical palette. Every class is paired wit
 - Primary interactions: scenario selection, layer visibility, opacity, divider drag, pixel inspection, tab navigation, uploads, and report export.
 - Controls implement default, hover, focus-visible, active, disabled, loading, error, and success states where applicable.
 - Focus rings appear instantly with at least 3:1 contrast.
-- Motion is limited to 120–220 ms opacity/transform changes. Divider movement directly follows input and is not eased.
-- Reduced-motion mode removes spatial transitions.
+- Motion is limited to 90–220 ms opacity/transform changes. Feedback lands on pointer-down, not on
+  release.
+- Divider movement is written straight to a CSS custom property on the frame, so it tracks the
+  pointer within the frame of the input rather than waiting for a render pass. It is 1:1 and not
+  eased, it keeps the offset from wherever the handle was grabbed, and it clamps at the edges rather
+  than projecting momentum — a scrub control has no snap points to be thrown towards.
+- The one exception is the double-click recentre, which runs a critically damped spring
+  (`frontend/src/lib/spring.ts`) rather than a CSS transition, because a transition cannot be grabbed
+  mid-flight. Pressing the handle during the return stops the spring and continues from its live
+  value.
+- Reduced-motion mode removes spatial transitions and replaces them with short cross-fades.
 - Successful export is acknowledged inline next to the action; errors explain recovery in place.
 
 ## Voice
