@@ -1,6 +1,7 @@
 import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 
 import type { MetricSet, ModelCatalog } from "../types";
+import { Matrix } from "./Matrix";
 
 interface ModelLabProps {
   models: ModelCatalog | null;
@@ -49,8 +50,12 @@ export function ModelLab({ models, isLoading }: ModelLabProps) {
             {unet.per_class.map((item, index) => (
               <div className="metric-table__row" role="row" key={item.name}>
                 <span><span className={`class-swatch class-swatch--${index}`} />{item.name}</span>
-                <span>{formatMetric(item.iou)}</span>
-                <span>{formatMetric(item.dice)}</span>
+                <span className="metric-table__value" style={{ "--fill": item.iou } as React.CSSProperties}>
+                  {formatMetric(item.iou)}
+                </span>
+                <span className="metric-table__value" style={{ "--fill": item.dice } as React.CSSProperties}>
+                  {formatMetric(item.dice)}
+                </span>
                 <span className={item.iou === 0 ? "status status--warning" : "status"}>
                   {item.iou === 0 ? <AlertCircle aria-hidden="true" /> : <CheckCircle2 aria-hidden="true" />}
                   {item.iou === 0 ? "Not learned" : item.iou >= 0.7 ? "Strong" : "Partial"}
@@ -59,11 +64,30 @@ export function ModelLab({ models, isLoading }: ModelLabProps) {
             ))}
           </div>
         </div>
-        <ConfusionMatrix metrics={unet} />
-      </section>
-      <section className="method-note">
-        <h2>What the aggregate hides</h2>
-        <p>Tree cover and permanent water dominate useful performance. Exposed terrain and herbaceous wetland score zero because the source data contributes too few pixels for this four-epoch CPU run. The application keeps those classes visible so a polished demo cannot erase the model’s blind spots.</p>
+        <div className="model-detail__side">
+          <div className="confusion-panel">
+            <h2>Confusion matrix</h2>
+            <p>Rows are ground truth; columns are predictions.</p>
+            <Matrix
+              values={unet.confusion_matrix}
+              labels={unet.per_class.map((item) => shortLabel(item.name))}
+              titles={unet.per_class.map((item) => item.name)}
+              caption="Test-split confusion matrix"
+              rowAxis="Truth"
+              columnAxis="Predicted"
+              describe={(truth, predicted, value) =>
+                `${truth} predicted as ${predicted}: ${value.toLocaleString("en")} pixels`
+              }
+            />
+            <p className="analysis-note">
+              The two empty columns are the classes the model never predicts, so no pixel can land in them.
+            </p>
+          </div>
+          <section className="method-note">
+            <h2>What the aggregate hides</h2>
+            <p>Tree cover and permanent water dominate useful performance. Exposed terrain and herbaceous wetland score zero because the source data contributes too few pixels for this four-epoch CPU run. The application keeps those classes visible so a polished demo cannot erase the model’s blind spots.</p>
+          </section>
+        </div>
       </section>
     </article>
   );
@@ -83,31 +107,18 @@ function ModelSummary({ name, metrics, selected = false }: { name: string; metri
   );
 }
 
-function ConfusionMatrix({ metrics }: { metrics: MetricSet }) {
-  const maximum = Math.max(...metrics.confusion_matrix.flat(), 1);
-  return (
-    <div className="confusion-panel">
-      <h2>Confusion matrix</h2>
-      <p>Rows are ground truth; columns are predictions.</p>
-      <div className="confusion-grid" style={{ "--matrix-size": metrics.confusion_matrix.length } as React.CSSProperties}>
-        {metrics.confusion_matrix.flatMap((row, rowIndex) =>
-          row.map((value, columnIndex) => (
-            <div
-              className="confusion-cell"
-              key={`${rowIndex}-${columnIndex}`}
-              style={{ "--intensity": Math.sqrt(value / maximum) } as React.CSSProperties}
-              title={`${metrics.per_class[rowIndex].name} predicted as ${metrics.per_class[columnIndex].name}: ${value.toLocaleString("en")}`}
-            >
-              {value > maximum * 0.035 ? new Intl.NumberFormat("en", { notation: "compact" }).format(value) : ""}
-            </div>
-          )),
-        )}
-      </div>
-    </div>
-  );
+/** "Herbaceous wetland" has to fit a matrix column two characters wide. */
+function shortLabel(name: string): string {
+  const overrides: Record<string, string> = {
+    "Tree cover": "Trees",
+    "Low vegetation": "Low veg.",
+    "Exposed terrain": "Terrain",
+    "Permanent water": "Water",
+    "Herbaceous wetland": "Wetland",
+  };
+  return overrides[name] ?? name;
 }
 
 function formatMetric(value: number): string {
   return value.toFixed(3);
 }
-
