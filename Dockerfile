@@ -3,6 +3,10 @@ FROM node:22-alpine AS frontend-build
 WORKDIR /build/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
+# styles.css imports ../../tokens.css, so this stage has to mirror the repository
+# layout: the token file sits beside the frontend directory, not inside it. Copying
+# only frontend/ builds an image whose CSS cannot resolve.
+COPY tokens.css /build/tokens.css
 COPY frontend/ ./
 RUN npm run build
 
