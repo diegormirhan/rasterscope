@@ -1,4 +1,11 @@
+/* RasterScope design tokens.
+ * Light is the shipped default; the dark scheme is the same instrument under a
+ * darkroom lamp. Every surface token is defined in both schemes, so no rule in
+ * styles.css needs a scheme-specific override. */
+
 :root {
+  color-scheme: light dark;
+
   --color-paper: oklch(97% 0.009 105);
   --color-paper-raised: oklch(94% 0.012 105);
   --color-paper-deep: oklch(90% 0.014 105);
@@ -17,6 +24,19 @@
   --color-error-soft: oklch(93% 0.035 28);
   --color-backdrop: oklch(20% 0.012 135 / 0.56);
   --color-shadow: oklch(20% 0.012 135 / 0.10);
+  --color-shadow-deep: oklch(20% 0.012 135 / 0.22);
+
+  /* Chrome is its own pair so the navigation rail stays dark in both schemes. */
+  --color-chrome: oklch(20% 0.012 135);
+  --color-chrome-raised: oklch(30% 0.014 135);
+  --color-chrome-ink: oklch(94% 0.012 105);
+
+  /* Floating surfaces: translucent by default, opaque under reduced transparency. */
+  --material-chrome: oklch(97% 0.009 105 / 0.78);
+  --material-float: oklch(97% 0.009 105 / 0.86);
+  --material-edge: oklch(100% 0 0 / 0.5);
+  --material-blur: blur(20px) saturate(180%);
+
   --color-class-tree: oklch(45% 0.090 145);
   --color-class-low-vegetation: oklch(66% 0.090 120);
   --color-class-cropland: oklch(72% 0.095 85);
@@ -28,6 +48,18 @@
   --font-display: "Manrope Variable", "Arial Narrow", sans-serif;
   --font-body: "Source Sans 3 Variable", "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", "Cascadia Mono", monospace;
+
+  /* Tracking is size-specific: large type tightens, small type opens up. */
+  --track-display: -0.03em;
+  --track-title: -0.022em;
+  --track-heading: -0.014em;
+  --track-body: 0em;
+  --track-micro: 0.02em;
+  --track-mono: -0.01em;
+
+  --leading-display: 1.04;
+  --leading-heading: 1.2;
+  --leading-body: 1.55;
 
   --space-3xs: 0.125rem;
   --space-2xs: 0.25rem;
@@ -50,6 +82,7 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-press: 90ms;
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
@@ -59,4 +92,64 @@
   --radius-xs: 0.25rem;
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(19% 0.010 135);
+    --color-paper-raised: oklch(23% 0.011 135);
+    --color-paper-deep: oklch(27% 0.012 135);
+    --color-ink: oklch(95% 0.008 105);
+    --color-ink-soft: oklch(79% 0.010 110);
+    --color-muted: oklch(70% 0.010 115);
+    --color-rule: oklch(33% 0.012 130);
+    --color-rule-strong: oklch(46% 0.014 130);
+    --color-accent: oklch(76% 0.150 145);
+    --color-accent-soft: oklch(34% 0.070 145);
+    --color-accent-ink: oklch(16% 0.020 145);
+    --color-focus: oklch(82% 0.170 145);
+    --color-warning: oklch(80% 0.130 75);
+    --color-warning-soft: oklch(30% 0.055 75);
+    --color-error: oklch(72% 0.150 28);
+    --color-error-soft: oklch(28% 0.065 28);
+    --color-backdrop: oklch(10% 0.008 135 / 0.66);
+    --color-shadow: oklch(0% 0 0 / 0.4);
+    --color-shadow-deep: oklch(0% 0 0 / 0.6);
+
+    --color-chrome: oklch(14% 0.010 135);
+    --color-chrome-raised: oklch(26% 0.012 135);
+    --color-chrome-ink: oklch(92% 0.008 110);
+
+    --material-chrome: oklch(19% 0.010 135 / 0.76);
+    --material-float: oklch(23% 0.011 135 / 0.86);
+    --material-edge: oklch(100% 0 0 / 0.12);
+
+    --color-class-tree: oklch(58% 0.100 145);
+    --color-class-low-vegetation: oklch(74% 0.095 120);
+    --color-class-cropland: oklch(80% 0.100 85);
+    --color-class-built: oklch(66% 0.085 42);
+    --color-class-terrain: oklch(78% 0.038 72);
+    --color-class-water: oklch(68% 0.090 235);
+    --color-class-wetland: oklch(70% 0.055 160);
+  }
+}
+
+/* Frosted surfaces become solid rather than merely less blurred. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --material-chrome: var(--color-paper);
+    --material-float: var(--color-paper);
+    --material-blur: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --material-chrome: var(--color-paper);
+    --material-float: var(--color-paper);
+    --material-blur: none;
+    --color-rule: var(--color-ink-soft);
+    --color-rule-strong: var(--color-ink);
+    --color-muted: var(--color-ink-soft);
+  }
 }
