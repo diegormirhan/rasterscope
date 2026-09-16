@@ -39,6 +39,9 @@ dev = [
   "ruff>=0.12,<1",
   "ty>=0.0.1a20",
 ]
+media = [
+    "playwright>=1.49,<2",
+]
 
 [project.scripts]
 rasterscope = "rasterscope.cli:main"
