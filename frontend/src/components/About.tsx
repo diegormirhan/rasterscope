@@ -20,15 +20,19 @@ export function About() {
           </ol>
         </section>
         <section>
+          <h2>Where the line sits</h2>
+          <p>The network proposes a class for every pixel. Everything after that — pixel counts, hectare conversion, deltas, the transition matrix and the exported report — is deterministic code with its own tests, so a change to the model cannot quietly change an arithmetic result.</p>
+        </section>
+        <section>
           <h2>Boundaries</h2>
           <p>The model uses RGB alone, trains on Norway-focused tiles, and cannot infer why a transition occurred. Outputs are screening evidence, not cadastral, ecological, or legal conclusions.</p>
         </section>
       </div>
       <footer className="about-footer">
-        <a href="https://github.com/diegormirhan" target="_blank" rel="noreferrer"><Github aria-hidden="true" />Diego Mirhan on GitHub<ExternalLink aria-hidden="true" /></a>
+        <a href="https://github.com/diegormirhan/rasterscope" target="_blank" rel="noreferrer"><Github aria-hidden="true" />Source on GitHub<ExternalLink aria-hidden="true" /></a>
         <a href="https://huggingface.co/datasets/nikolkoo/SatelliteSegmentation" target="_blank" rel="noreferrer">Dataset card<ExternalLink aria-hidden="true" /></a>
+        <a href="https://diegomirhan.com" target="_blank" rel="noreferrer">Diego Mirhan<ExternalLink aria-hidden="true" /></a>
       </footer>
     </article>
   );
 }
-
